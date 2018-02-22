@@ -10,3 +10,4 @@ import matplotlib.pyplot as plt
 
 # Bring modules into the library's namespace.
 from .plotting import *
+from .misc import *
