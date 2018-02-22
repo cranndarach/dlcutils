@@ -64,7 +64,6 @@ def plot_curve(*args, **kwargs):
 
 def plot_axes(xs, ys, **kwargs):
     """Plot x and y axes, given x and y values."""
-
     fmt = kwargs.get("fmt", "w-")
 
     plt.plot([min(xs), max(xs)], [0, 0], fmt)
