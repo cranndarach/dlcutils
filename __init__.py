@@ -9,5 +9,6 @@ I am turning them into a library.
 import matplotlib.pyplot as plt
 
 # Bring modules into the library's namespace.
+from .networks import *
 from .plotting import *
 from .misc import *
