@@ -173,7 +173,7 @@ class BANetwork:
         # repeated as many times as its degree.
         # candidates, weights = [*zip(self.degrees.items())]
         # targets = rd.choices(candidates, weights, k=self.k)
-        candidates = it.chain.from_iterable(self.edges)
+        candidates = list(it.chain.from_iterable(self.edges))
         targets = rd.sample(candidates, self.k)
         self.make_edges(node, targets)
 
