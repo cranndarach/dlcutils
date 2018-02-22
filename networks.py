@@ -126,14 +126,57 @@ class Network:
         return self.focus_node
 
 
-class BANetwork(Network):
+class BANetwork:
     """
-    Extension of the basic "Network" class from assignment 5. Trying to
-    make a Barabasi & Albern network. Might actually change it to not
-    be an extension.
+    Barabasi & Albert network.
     """
     def __init__(self, n, k):
-        super().__init__(n)
+        """
+        n is the desired number of nodes in the final network.
+        k is the number of edges to allot to each added node.
+        """
+        self.n = n
         self.k = k
         self.nodes = list(range(1, k+1))
+        self.size = k
         self.degrees = dict(zip(self.nodes, [0]*k))
+        self.edges = []
+        self.add_first_node()
+        self.make_network()
+
+    def make_edges(self, node, targets):
+        for neighbor in targets:
+            self.edges.append((node, neighbor))
+            self.degrees[node] += 1
+            self.degrees[neighbor] += 1
+
+    def add_first_node(self):
+        if self.size != self.k:
+            raise ValueError("The network is already initialized.")
+        self.size += 1
+        targets = self.nodes.copy()
+        # Nodes will just be an integer representing its index.
+        node = self.size
+        self.nodes.append(node)
+        self.degrees[node] = 0
+        self.make_edges(node, targets)
+
+    def add_node(self):
+        if self.size == self.k:
+            raise ValueError("Network not yet initialized.")
+        self.size += 1
+        node = self.size
+        self.nodes.append(node)
+        self.degrees[node] = 0
+        # Wanted to use rd.choices, but that samples with replacement.
+        # I guess instead it should sample from a list with each node
+        # repeated as many times as its degree.
+        # candidates, weights = [*zip(self.degrees.items())]
+        # targets = rd.choices(candidates, weights, k=self.k)
+        candidates = it.chain.from_iterable(self.edges)
+        targets = rd.sample(candidates, self.k)
+        self.make_edges(node, targets)
+
+    def make_network(self):
+        while self.size < self.n:
+            self.add_node()
