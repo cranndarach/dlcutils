@@ -180,3 +180,38 @@ class BANetwork:
     def make_network(self):
         while self.size < self.n:
             self.add_node()
+
+
+class WSNetwork:
+    """
+    Watts-Strogatz Small-World network.
+    """
+    def __init__(self, n, k, b):
+        if k % 2 != 0:
+            raise ValueError("k must be an even integer.")
+        if b < 0 or b > 1:
+            raise ValueError("b must be between 0 and 1 (inclusive).")
+        if n <= k:
+            raise ValueError("n must be greater than k.")
+        self.n = n
+        self.k = k
+        self.b = b
+        self.nodes = list(range(1, n+1))
+        self.edges = []
+        self.neighbors = {}
+        self.make_ring()
+        self.rewire()
+
+    def make_ring(self):
+        per_side = self.k/2
+        for node in self.nodes:
+            neighbors = []
+            if node <= per_side:
+                padding = per_side - node + 1
+                neighbors.append(self.nodes[-padding:])
+                neighbors.append(self.nodes[:node-1])
+            elif node >= len(self.nodes) - per_side:
+                # Haven't thought through whether that's the right condition.
+                pass
+            else:
+                pass
