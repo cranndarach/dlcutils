@@ -132,3 +132,38 @@ def plot_trajectory(fnc, x0, steps, **kwargs):
         plot_args = (xs, ys)
     # And a function from the previous assignment, now saved in a library.
     plot_curve(*plot_args, **kwargs)
+
+
+def state_plot(mtx, ax, color_0="#2B91E0", color_1="#5F35E4"):
+    """
+    Takes a matrix of 0s and 1s, and a color corresponding to 0 and to
+    1. Plots a rectangle of the given color at each 1 and at each 0.
+    All rows in the matrix must be of equal length. Like
+    two_color_plot() but but needs to be passed an Axes object.
+    """
+    # Make points square.
+    ax.set_aspect("equal")
+    # Make it go from top to bottom.
+    mtx.reverse()
+
+    # Set the size of the plot based on the length of the list (number
+    # of rows) and the length of the first item in the list (number of
+    # columns).
+    width = len(mtx[0])
+    height = len(mtx)
+    ax.set_xlim([0, width])
+    ax.set_ylim([0, height])
+
+    # Get iterator of all possible points by calculating the cartesian
+    # product of the indices of each dimension.
+    points_iter = itertools.product(range(width), range(height))
+
+    for point in points_iter:
+        col, row = point
+        if mtx[row][col] == 0:
+            ax.add_patch(make_patch(point, color_0))
+        elif mtx[row][col] == 1:
+            ax.add_patch(make_patch(point, color_1))
+        else:
+            raise ValueError("Unrecognized value " + str(mtx[row][col]) +
+                             ". Input matrix should only contain 1s and 0s.")
