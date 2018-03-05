@@ -4,10 +4,10 @@
 Cellular automaton functions and classes.
 """
 
-import sys
 import random as rd
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy import stats
 
 
 class Voter:
@@ -136,7 +136,7 @@ class Voter:
             row = plt_no % 3
             col = int(plt_no/3)
             cell_axes = axes[col][row]
-            state_plot(list(state_list), cell_axes)
+            dlc.state_plot(list(state_list), cell_axes)
             plt_no += 1
         if kwargs.get("show", False):
             plt.show()
@@ -157,3 +157,91 @@ def random_state(length):
     return [rd.randint(0, 1) for _ in range(length)]
 
 
+def get_cell_neighborhood(seq, pos):
+    """
+    Return the neighborhood (a triple) of the cell in the specified
+    position of a sequence.
+    """
+    cell = seq[pos]
+    left = seq[-1] if pos == 0 else seq[pos-1]
+    right = seq[0] if pos == (len(seq) - 1) else seq[pos+1]
+    return (left, cell, right)
+
+
+def get_wolfram_rule(rule_no):
+    """
+    Return a dictionary with the cell => next_state correspondences
+    for a rule number for a Wolfram CA.
+    """
+    cell_types = [
+        (1, 1, 1),
+        (1, 1, 0),
+        (1, 0, 1),
+        (1, 0, 0),
+        (0, 1, 1),
+        (0, 1, 0),
+        (0, 0, 1),
+        (0, 0, 0)
+    ]
+    rule_bin = str(bin(rule_no))
+    rule_substr = rule_bin[2::]
+    padding = "0" * (8 - len(rule_substr))
+    rule_string = padding + rule_substr
+    rule_seq = [int(num) for num in rule_string]
+    rule_corresp = dict(zip(cell_types, rule_seq))
+    return rule_corresp
+
+
+def wolfram_cell_step_from_neighborhood(neighborhood, rule):
+    """
+    Simple utility fnc to get the result of a rule for a neighborhood.
+    Exists to make list comprehensions comprehensible.
+    """
+    return rule[neighborhood]
+
+
+def wolfram_cell_step(seq, pos, rule):
+    """
+    Simple utility fnc to get the next state of a cell in the specified
+    position of the sequence. Exists for fnc composition/application.
+    """
+    nbrs = get_cell_neighborhood(seq, pos)
+    return wolfram_cell_step_from_neighborhood(nbrs, rule)
+
+
+def wolfram_next_step(initial, rule):
+    """
+    Given the initial state of a CA and a rule correspondence (see
+    `get_wolfram_rule()`), return the next state.
+    """
+    return [wolfram_cell_step(initial, pos, rule) for pos in
+            range(len(initial))]
+
+
+def wolfram_plot(initial, rule_no, steps, color0="#2B91E0", color1="#5F35E4"):
+    """
+    Plots the states of a Wolfram CA starting with the `initial`
+    state, using rule `rule_no`, and running for `steps` steps.
+    """
+    states = wolfram_steps(initial, rule_no, steps)
+    states.reverse()
+    two_color_plot(states, color0, color1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.title("Rule #" + str(rule_no))
+
+
+def wolfram_steps(initial, rule_no, steps):
+    """
+    Returns list of `steps` steps of a Wolfram CA given the `initial`
+    state and a rule number.
+    """
+    rule = get_wolfram_rule(rule_no)
+    step = 0
+    state = initial.copy()
+    states = [state]
+    while step < steps:
+        step += 1
+        state = wolfram_next_step(state, rule)
+        states.append(state)
+    return states

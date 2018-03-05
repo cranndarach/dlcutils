@@ -4,6 +4,8 @@
 Utility functions for plotting.
 """
 
+import itertools as it
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
@@ -156,7 +158,7 @@ def state_plot(mtx, ax, color_0="#2B91E0", color_1="#5F35E4"):
 
     # Get iterator of all possible points by calculating the cartesian
     # product of the indices of each dimension.
-    points_iter = itertools.product(range(width), range(height))
+    points_iter = it.product(range(width), range(height))
 
     for point in points_iter:
         col, row = point
@@ -167,3 +169,10 @@ def state_plot(mtx, ax, color_0="#2B91E0", color_1="#5F35E4"):
         else:
             raise ValueError("Unrecognized value " + str(mtx[row][col]) +
                              ". Input matrix should only contain 1s and 0s.")
+
+
+def make_patch(point, color):
+    """
+    Make a 1x1 rectangular patch at the specified point.
+    """
+    return mpl.patches.Rectangle(point, 1, 1, color=color)
