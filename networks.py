@@ -204,14 +204,14 @@ class WSNetwork:
 
     def make_ring(self):
         per_side = self.k/2
+        l_padding = self.nodes[-per_side:]
+        r_padding = self.nodes[:per_side]
+        padded_nodes = l_padding + self.nodes + r_padding
         for node in self.nodes:
-            neighbors = []
-            if node <= per_side:
-                padding = per_side - node + 1
-                neighbors.append(self.nodes[-padding:])
-                neighbors.append(self.nodes[:node-1])
-            elif node >= len(self.nodes) - per_side:
-                # Haven't thought through whether that's the right condition.
-                pass
-            else:
-                pass
+            nbr_start = node
+            nbr_end = node + self.k + 1
+            neighbors = padded_nodes[nbr_start:nbr_end]
+            neighbors.remove(node)
+            neighbor_pairs = [(node, nbr) for nbr in neighbors]
+            self.edges.extend(neighbor_pairs)
+            self.neighbors[node] = neighbors
