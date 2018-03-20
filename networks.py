@@ -208,8 +208,9 @@ class WSNetwork:
         r_padding = self.nodes[:per_side]
         padded_nodes = l_padding + self.nodes + r_padding
         for node in self.nodes:
-            nbr_start = node
-            nbr_end = node + self.k + 1
+            # Remember that nodes start counting from 1.
+            nbr_start = node - 1
+            nbr_end = node + self.k
             neighbors = padded_nodes[nbr_start:nbr_end]
             neighbors.remove(node)
             neighbor_pairs = [(node, nbr) for nbr in neighbors]
