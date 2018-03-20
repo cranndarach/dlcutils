@@ -203,7 +203,7 @@ class WSNetwork:
         self.rewire()
 
     def make_ring(self):
-        per_side = self.k/2
+        per_side = int(self.k/2)
         l_padding = self.nodes[-per_side:]
         r_padding = self.nodes[:per_side]
         padded_nodes = l_padding + self.nodes + r_padding
@@ -216,3 +216,24 @@ class WSNetwork:
             neighbor_pairs = [(node, nbr) for nbr in neighbors]
             self.edges.extend(neighbor_pairs)
             self.neighbors[node] = neighbors
+
+    def rewire(self):
+        not_b = 1 - self.b
+        for node in self.nodes:
+            neighbors = self.neighbors[node].copy()
+            candidates = [nbr for nbr in neighbors if node < nbr]
+            for j in candidates:
+                rewire_node = rd.choices([True, False],
+                                         weights=[self.b, not_b])[0]
+                if rewire_node:
+                    self.find_new_neighbor(node, j)
+            self.neighbors[node].sort()
+        self.edges = sorted(self.edges, key=lambda edge: edge[0])
+
+    def find_new_neighbor(self, i, j):
+        options = [n for n in self.nodes if n not in self.neighbors[i]+[i]]
+        new_neighbor = rd.choice(options)
+        self.neighbors[i].remove(j)
+        self.neighbors[i].append(new_neighbor)
+        self.edges.remove((i, j))
+        self.edges.append((i, new_neighbor))
