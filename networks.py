@@ -131,24 +131,36 @@ class ERNetwork:
     """
     Erdos-Renyi network.
     """
-    def __init__(self, n, p):
+    def __init__(self, n, p=None, m=None):
         """
         n is the desired number of nodes in the network.
         p is the probability of creating an edge.
+        m is the number of desired edges in the network.
+        Either p xor m must be specified.
         """
+        if (p and m) or (not p and not m):
+            raise ValueError("Please specify either p xor m.")
         self.n = n
         self.p = p
+        self.m = m
         self.nodes = list(range(1, n+1))
-        self.edges = []
-        self.connect()
+        self.edges = None
+        self.poss_edges = list(it.combinations(self.nodes, 2))
+        if self.p:
+            self.connect_p()
+        if self.m:
+            self.connect_m()
 
-    def connect(self):
+    def connect_p(self):
         not_p = 1 - self.p
-        poss_edges = list(it.combinations(self.nodes, 2))
-        presence = np.random.choice([0, 1], len(poss_edges), p=[not_p, self.p])
+        presence = np.random.choice([0, 1], len(self.poss_edges),
+                                    p=[not_p, self.p])
         # There isn't an obvious filter_by type of function.
-        edge_presence = zip(poss_edges, presence)
+        edge_presence = zip(self.poss_edges, presence)
         self.edges = [edge for edge, incl in edge_presence if incl]
+
+    def connect_m(self):
+        self.edges = rd.choices(self.poss_edges, k=self.m)
 
 
 class BANetwork:
