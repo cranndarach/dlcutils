@@ -6,6 +6,7 @@ Network science utilities.
 
 import random as rd
 import itertools as it
+import numpy as np
 
 
 # There were originally classes for Node and Edge, but they became
@@ -124,6 +125,30 @@ class Network:
         self.select_focus_edge()
         self.set_focus("next")
         return self.focus_node
+
+
+class ERNetwork:
+    """
+    Erdos-Renyi network.
+    """
+    def __init__(self, n, p):
+        """
+        n is the desired number of nodes in the network.
+        p is the probability of creating an edge.
+        """
+        self.n = n
+        self.p = p
+        self.nodes = list(range(1, n+1))
+        self.edges = []
+        self.connect()
+
+    def connect(self):
+        not_p = 1 - self.p
+        poss_edges = list(it.combinations(self.nodes, 2))
+        presence = np.random.choice([0, 1], len(poss_edges), p=[not_p, self.p])
+        # There isn't an obvious filter_by type of function.
+        edge_presence = zip(poss_edges, presence)
+        self.edges = [edge for edge, incl in edge_presence if incl]
 
 
 class BANetwork:
